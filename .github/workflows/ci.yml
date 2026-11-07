@@ -36,7 +36,7 @@ jobs:
       - run: cd android && chmod +x gradlew && ./gradlew --no-daemon assembleDebug
 
   ios:
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
