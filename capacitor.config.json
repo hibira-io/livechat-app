@@ -1,0 +1,20 @@
+{
+  "appId": "io.hibira.chat",
+  "appName": "Hibira Chat",
+  "webDir": "www",
+  "server": {
+    "url": "https://chat.hibira.io/inbox",
+    "allowNavigation": ["chat.hibira.io"],
+    "errorPath": "offline.html"
+  },
+  "ios": {
+    "appendUserAgent": "HibiraChatApp/ios",
+    "contentInset": "never",
+    "limitsNavigationsToAppBoundDomains": false,
+    "scheme": "HibiraChat"
+  },
+  "android": {
+    "appendUserAgent": "HibiraChatApp/android",
+    "allowMixedContent": false
+  }
+}
