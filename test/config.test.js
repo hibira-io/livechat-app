@@ -16,6 +16,11 @@ test("one app ID everywhere", () => {
   assert.match(read("android/app/build.gradle"), /applicationId "io\.hibira\.chat"/);
 });
 
+test("release builds sign for the App Store, no registered iPhone needed", () => {
+  const release = read("ios/App/App.xcodeproj/project.pbxproj").split("/* Release */ = {")[2] ?? "";
+  assert.match(release, /"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]" = "Apple Distribution";/);
+});
+
 test("the web view stays on the Live Chat host", () => {
   const url = new URL(config.server.url);
   assert.equal(url.host, HOST);
