@@ -4,7 +4,7 @@ const fs = require('fs'), path = require('path');
 const [outroot, ...langs] = process.argv.slice(2);
 const H = JSON.parse(fs.readFileSync(path.join(__dirname, 'heads.json')));
 const fonts = { ja: "'Noto Sans CJK JP'", ko: "'Noto Sans CJK KR'", 'zh-TW': "'Noto Sans CJK TC'", 'zh-CN': "'Noto Sans CJK SC'", th: "'Noto Sans Thai'" };
-const shots = ['1-list', '2-chat', '3-login'];
+const shots = ['1-list', '2-chat', '3-low', '4-login'];
 (async () => {
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: 1320, height: 2868 } });
