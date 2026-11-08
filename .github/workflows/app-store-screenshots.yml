@@ -18,7 +18,7 @@ on:
       step:
         description: What to update
         type: choice
-        options: [all, metadata, screenshots, testflight, inspect]
+        options: [all, metadata, screenshots, creatives, testflight, inspect]
         default: all
 
 permissions:
@@ -62,3 +62,6 @@ jobs:
       - name: Screenshots
         if: inputs.step == 'all' || inputs.step == 'screenshots'
         run: node .github/scripts/asc-screenshots.mjs
+      - name: Header and search results images
+        if: inputs.step == 'all' || inputs.step == 'creatives'
+        run: node .github/scripts/asc-creatives.mjs
