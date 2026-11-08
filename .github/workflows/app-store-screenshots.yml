@@ -18,7 +18,7 @@ on:
       step:
         description: What to update
         type: choice
-        options: [all, metadata, screenshots, creatives, testflight, inspect]
+        options: [all, metadata, screenshots, creatives, build, testflight, inspect]
         default: all
 
 permissions:
@@ -65,3 +65,6 @@ jobs:
       - name: Header and search results images
         if: inputs.step == 'all' || inputs.step == 'creatives'
         run: node .github/scripts/asc-creatives.mjs
+      - name: Newest TestFlight build on the version
+        if: inputs.step == 'build'
+        run: node .github/scripts/asc-build.mjs
