@@ -32,6 +32,15 @@
                 <data android:scheme="https" android:host="chat.hibira.io" android:pathPrefix="/inbox" />
             </intent-filter>
 
+            <!-- Provider sign-ins (Apple, Google, Microsoft, GitHub) return here from the browser
+                 (HibiraChatAuthPlugin); the link only works with the page's own secret. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="io.hibira.chat" android:host="auth" />
+            </intent-filter>
+
         </activity>
 
         <meta-data
