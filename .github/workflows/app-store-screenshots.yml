@@ -6,6 +6,7 @@
 #   App Review account (secrets ASC_DEMO_USER / ASC_DEMO_PASSWORD)
 # - screenshots: replaces the 6.9" iPhone screenshots with
 #   store/ios/screenshots/<locale>/*, in name order
+# - testflight: an internal TestFlight group with every team user in it
 # - inspect: prints the reference app's age rating and review details
 name: app-store-screenshots
 on:
@@ -17,7 +18,7 @@ on:
       step:
         description: What to update
         type: choice
-        options: [all, metadata, screenshots, inspect]
+        options: [all, metadata, screenshots, testflight, inspect]
         default: all
 
 permissions:
@@ -43,6 +44,9 @@ jobs:
       - name: Inspect
         if: inputs.step == 'inspect'
         run: node .github/scripts/asc-inspect.mjs
+      - name: TestFlight group
+        if: inputs.step == 'testflight'
+        run: node .github/scripts/asc-testflight.mjs
       - name: Metadata
         if: inputs.step == 'all' || inputs.step == 'metadata'
         env:
