@@ -1,0 +1,28 @@
+# App Store screenshots: Actions → app-store-screenshots → Run workflow.
+# Replaces the 6.9" iPhone screenshots of the iOS version being prepared in
+# App Store Connect with store/ios/screenshots/<locale>/*, in name order, for
+# each locale folder there. Uses the same team API key as the release.
+name: app-store-screenshots
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: app-store-screenshots
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: 22 }
+      - name: Upload
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          BUNDLE_ID: io.hibira.chat
+        run: node .github/scripts/asc-screenshots.mjs

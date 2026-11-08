@@ -1,0 +1,58 @@
+{
+ "en": {
+  "asc": "en-US",
+  "h": [
+   "Every chat, wherever you are",
+   "AI answers first, your team takes over",
+   "Sign in with an email link"
+  ]
+ },
+ "ja": {
+  "asc": "ja",
+  "h": [
+   "すべてのチャットを、\nいつでも手元に",
+   "まずAIが回答、\n必要なときはチームへ",
+   "メールのリンクで\nサインイン"
+  ]
+ },
+ "ko": {
+  "asc": "ko",
+  "h": [
+   "모든 채팅을\n언제 어디서나",
+   "AI가 먼저 답하고,\n필요하면 팀이 이어받아요",
+   "이메일 링크로 로그인"
+  ]
+ },
+ "zh-TW": {
+  "asc": "zh-Hant",
+  "h": [
+   "所有對話，\n隨時在手邊",
+   "AI 先回答，\n需要時交給團隊",
+   "用 Email 連結登入"
+  ]
+ },
+ "zh-CN": {
+  "asc": "zh-Hans",
+  "h": [
+   "所有对话，\n随时在手边",
+   "AI 先回答，\n需要时交给团队",
+   "用邮件链接登录"
+  ]
+ },
+ "th": {
+  "asc": "th",
+  "h": [
+   "ทุกแชต\nอยู่ในมือคุณ",
+   "AI ตอบก่อน\nทีมรับต่อเมื่อจำเป็น",
+   "เข้าสู่ระบบ\nด้วยลิงก์ในอีเมล"
+  ]
+ },
+ "vi": {
+  "asc": "vi",
+  "h": [
+   "Mọi cuộc trò chuyện,\nngay trong túi bạn",
+   "AI trả lời trước,\nđội ngũ tiếp nhận khi cần",
+   "Đăng nhập bằng\nliên kết email"
+  ]
+ }
+}

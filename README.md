@@ -67,6 +67,9 @@ Push a tag: `v1.2.3` builds version `1.2.3`, build number `1002003`. Each tag ca
   it also uploads to internal testing. An individual Play account needs a closed test with 12 testers for
   14 days before production.
 
+App Store screenshots live in `store/ios/screenshots/<locale>/` (7 languages, real inbox shots; how to retake them is in
+`store/capture/README.md`). Actions → **app-store-screenshots** → Run workflow uploads them to the version being prepared.
+
 Pull requests build both apps without signing (`ci.yml`), and `npm test` checks that the IDs, host and link paths
 agree across the native files.
 
