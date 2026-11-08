@@ -1,8 +1,9 @@
 // Uploads the App Store screenshots in store/ios/screenshots/<locale>/ to the
 // iOS version that is still being prepared in App Store Connect, replacing
 // what that locale had for 6.9" iPhones. Files go in name order. A locale the
-// version doesn't have yet is added (its texts are then filled in App Store
-// Connect). Locales without a folder keep what they have.
+// version doesn't have yet is added, named like the app (its texts are then
+// filled in App Store Connect). With no version in preparation, VERSION
+// (default 1.0) is created. Locales without a folder keep what they have.
 //
 // Env: ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 (the team API key the release
 // uses) and BUNDLE_ID (io.hibira.chat).
@@ -49,8 +50,23 @@ if (!app) throw new Error(`No App Store Connect app has the bundle ID ${BUNDLE_I
 
 const editable = new Set(["PREPARE_FOR_SUBMISSION", "DEVELOPER_REJECTED", "REJECTED", "METADATA_REJECTED", "INVALID_BINARY"]);
 const versions = await asc("GET", `/apps/${app.id}/appStoreVersions?filter[platform]=IOS&limit=20`);
-const version = versions.data.find((/** @type {any} */ v) => editable.has(v.attributes.appStoreState ?? v.attributes.appVersionState));
-if (!version) throw new Error("No iOS version is being prepared in App Store Connect");
+let version = versions.data.find((/** @type {any} */ v) => editable.has(v.attributes.appStoreState ?? v.attributes.appVersionState));
+if (!version) {
+  // Nothing in preparation: start the next version (VERSION, default 1.0).
+  version = (await asc("POST", "/appStoreVersions", {
+    data: {
+      type: "appStoreVersions",
+      attributes: { platform: "IOS", versionString: process.env.VERSION || "1.0" },
+      relationships: { app: { data: { type: "apps", id: app.id } } },
+    },
+  })).data;
+  console.log(`Version ${version.attributes.versionString} created`);
+}
+
+// A store language needs the app-level name first; the app's own name is used.
+const infos = (await asc("GET", `/apps/${app.id}/appInfos?limit=10`)).data;
+const info = infos.find((/** @type {any} */ i) => !["READY_FOR_SALE", "REPLACED_WITH_NEW_INFO"].includes(i.attributes.appStoreState ?? i.attributes.state)) ?? infos[0];
+const infoLocs = (await asc("GET", `/appInfos/${info.id}/appInfoLocalizations?limit=50`)).data;
 console.log(`${app.attributes.name}, version ${version.attributes.versionString} (${version.id})`);
 
 const locs = (await asc("GET", `/appStoreVersions/${version.id}/appStoreVersionLocalizations?limit=50`)).data;
@@ -61,6 +77,19 @@ for (const locale of folders) {
   const files = (await readdir(join(DIR, locale))).filter((f) => /\.(png|jpe?g)$/i.test(f)).sort();
   if (!files.length) continue;
   let loc = locs.find((/** @type {any} */ l) => l.attributes.locale === locale);
+  if (!infoLocs.some((/** @type {any} */ l) => l.attributes.locale === locale)) {
+    await asc("POST", "/appInfoLocalizations", {
+      data: {
+        type: "appInfoLocalizations",
+        attributes: { locale, name: app.attributes.name },
+        relationships: { appInfo: { data: { type: "appInfos", id: info.id } } },
+      },
+    });
+    console.log(`${locale} added to the app`);
+    // App Store Connect may add the version's language along with it.
+    const again = (await asc("GET", `/appStoreVersions/${version.id}/appStoreVersionLocalizations?limit=50`)).data;
+    loc = again.find((/** @type {any} */ l) => l.attributes.locale === locale);
+  }
   if (!loc) {
     loc = (await asc("POST", "/appStoreVersionLocalizations", {
       data: {

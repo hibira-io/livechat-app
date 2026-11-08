@@ -5,6 +5,10 @@
 name: app-store-screenshots
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: Version to create when none is being prepared
+        default: "1.0"
 
 permissions:
   contents: read
@@ -25,4 +29,5 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
           BUNDLE_ID: io.hibira.chat
+          VERSION: ${{ inputs.version }}
         run: node .github/scripts/asc-screenshots.mjs
