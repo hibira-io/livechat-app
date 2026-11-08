@@ -18,7 +18,7 @@ on:
       step:
         description: What to update
         type: choice
-        options: [all, metadata, screenshots, creatives, build, testflight, inspect]
+        options: [all, metadata, screenshots, creatives, build, pricing, testflight, inspect]
         default: all
 
 permissions:
@@ -68,3 +68,10 @@ jobs:
       - name: Newest TestFlight build on the version
         if: inputs.step == 'build'
         run: node .github/scripts/asc-build.mjs
+      - name: Free price and territories
+        if: inputs.step == 'pricing'
+        env:
+          # Japan waits for the Telecommunications Business Act notification;
+          # mainland China needs its own licences.
+          EXCLUDE_TERRITORIES: JPN,CHN
+        run: node .github/scripts/asc-pricing.mjs
