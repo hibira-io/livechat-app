@@ -8,64 +8,23 @@
 // Env: ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 (the team API key the release
 // uses) and BUNDLE_ID (io.hibira.chat).
 // Adapted from hibira-io/gaya .github/scripts/asc-screenshots.mjs.
-import { createHash, createPrivateKey, sign } from "node:crypto";
+import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { asc, editableInfo, editableVersion, findApp } from "./asc-api.mjs";
 
-const API = "https://api.appstoreconnect.apple.com/v1";
 const DIR = "store/ios/screenshots";
 // 1320x2868 (6.9") and 1290x2796 (6.7") both belong to this display type.
 const DISPLAY = "APP_IPHONE_67";
 
-const { ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8, BUNDLE_ID } = process.env;
-for (const [k, v] of Object.entries({ ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8, BUNDLE_ID })) {
-  if (!v) throw new Error(`${k} is not set`);
-}
+const { BUNDLE_ID } = process.env;
+if (!BUNDLE_ID) throw new Error("BUNDLE_ID is not set");
 
-const b64url = (/** @type {Buffer|string} */ b) => Buffer.from(b).toString("base64url");
-function token() {
-  const now = Math.floor(Date.now() / 1000);
-  const head = b64url(JSON.stringify({ alg: "ES256", kid: ASC_KEY_ID, typ: "JWT" }));
-  const body = b64url(JSON.stringify({ iss: ASC_ISSUER_ID, iat: now, exp: now + 15 * 60, aud: "appstoreconnect-v1" }));
-  const key = createPrivateKey(/** @type {string} */ (ASC_KEY_P8));
-  const sig = sign("sha256", Buffer.from(`${head}.${body}`), { key, dsaEncoding: "ieee-p1363" });
-  return `${head}.${body}.${b64url(sig)}`;
-}
-
-/** @param {string} method @param {string} path @param {any} [body] */
-async function asc(method, path, body) {
-  const res = await fetch(path.startsWith("http") ? path : API + path, {
-    method,
-    headers: { authorization: `Bearer ${token()}`, "content-type": "application/json" },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  if (res.status === 204) return null;
-  const text = await res.text();
-  if (!res.ok) throw new Error(`${method} ${path}: ${res.status} ${text}`);
-  return text ? JSON.parse(text) : null;
-}
-
-const app = (await asc("GET", `/apps?filter[bundleId]=${encodeURIComponent(BUNDLE_ID)}&limit=1`)).data[0];
-if (!app) throw new Error(`No App Store Connect app has the bundle ID ${BUNDLE_ID}`);
-
-const editable = new Set(["PREPARE_FOR_SUBMISSION", "DEVELOPER_REJECTED", "REJECTED", "METADATA_REJECTED", "INVALID_BINARY"]);
-const versions = await asc("GET", `/apps/${app.id}/appStoreVersions?filter[platform]=IOS&limit=20`);
-let version = versions.data.find((/** @type {any} */ v) => editable.has(v.attributes.appStoreState ?? v.attributes.appVersionState));
-if (!version) {
-  // Nothing in preparation: start the next version (VERSION, default 1.0).
-  version = (await asc("POST", "/appStoreVersions", {
-    data: {
-      type: "appStoreVersions",
-      attributes: { platform: "IOS", versionString: process.env.VERSION || "1.0" },
-      relationships: { app: { data: { type: "apps", id: app.id } } },
-    },
-  })).data;
-  console.log(`Version ${version.attributes.versionString} created`);
-}
+const app = await findApp(BUNDLE_ID);
+const version = await editableVersion(app, process.env.VERSION || "1.0");
 
 // A store language needs the app-level name first; the app's own name is used.
-const infos = (await asc("GET", `/apps/${app.id}/appInfos?limit=10`)).data;
-const info = infos.find((/** @type {any} */ i) => !["READY_FOR_SALE", "REPLACED_WITH_NEW_INFO"].includes(i.attributes.appStoreState ?? i.attributes.state)) ?? infos[0];
+const info = await editableInfo(app);
 const infoLocs = (await asc("GET", `/appInfos/${info.id}/appInfoLocalizations?limit=50`)).data;
 console.log(`${app.attributes.name}, version ${version.attributes.versionString} (${version.id})`);
 
