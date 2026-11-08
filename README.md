@@ -8,7 +8,7 @@ The site does the work. The app adds what a phone needs: notifications, and sign
 | --- | --- |
 | App ID | `io.hibira.chat` (iOS bundle ID and Android package) |
 | Opens | `https://chat.hibira.io/inbox`, user agent ends in `HibiraChatApp/ios` or `HibiraChatApp/android` |
-| Sign-in | The emailed link (`/login/verify#token=…`) or the company's single sign-on (`/sso/jwt?…`). Both open in the app as Universal Links / App Links, so the session cookie lands in the app's web view. No Sign in with Apple needed: there is no third-party login. |
+| Sign-in | The emailed link (`/login/verify#token=…`) or the company's single sign-on (`/sso/jwt?…`), both opened in the app as Universal Links / App Links so the session cookie lands in the app's web view. Or Apple, Google, Microsoft or GitHub (when turned on in the Live Chat console, Apple first per App Store guideline 4.8): the provider's page opens in the system browser (`HibiraChatAuth`, below), because Google refuses web views. |
 | Notifications | [Hibira Push](https://hibira.io): [hibira-push-ios](https://github.com/hibira-io/hibira-push-ios) (APNs) and [hibira-push-android](https://github.com/hibira-io/hibira-push-android) (FCM). New chats, chats assigned to you, and visitor replies to your chats. A tap opens the conversation. |
 | Sold in the app | Nothing. Plans are bought on the website; the inbox hides billing links in the app. |
 | Server side | pusher-server `internal/livechat/mobile.go`: `/.well-known/apple-app-site-association`, `/.well-known/assetlinks.json`, `POST /api/v1/push/token`, `POST /api/v1/push/off` |
@@ -23,6 +23,12 @@ inbox page (chat.hibira.io)                         this app
 pusher-server: new chat / assigned / reply ──────▶  notice with data.url = /inbox/<id>?workspace=<ws>  → tap opens it
 email or SSO link on the phone ──────────────────▶  app opens, web view loads the link
 ```
+
+Provider sign-in: the sign-in page calls `HibiraChatAuth.open({url})` with
+`https://chat.hibira.io/auth/<provider>?app=ios|android&app_challenge=<S256 of a secret>`. iOS opens it in an
+`ASWebAuthenticationSession`, Android in the browser. The server ends on `io.hibira.chat://auth#token=…` (or
+`#error=…`); the plugin returns that URL and the page posts the token with its secret to `/api/v1/login/verify`.
+A token without the secret does nothing, so another app that claims the scheme gains nothing.
 
 `plugins/hibira-chat-push` is the only native code: `ios/Sources/…/HibiraChatPushPlugin.swift` and
 `android/src/main/java/io/hibira/chat/push/`. The page finds it at `window.Capacitor.Plugins.HibiraChatPush`;
@@ -60,7 +66,8 @@ Push a tag: `v1.2.3` builds version `1.2.3`, build number `1002003`. Each tag ca
 
 - **iPhone:** Xcode signs in the cloud with the API key, archives, and uploads to TestFlight. Submit for review
   in App Store Connect. Review notes:
-  - Sign-in is by email link or the customer's company single sign-on.
+  - Sign-in is by email link, the customer's company single sign-on, or Sign in with Apple / Google / Microsoft /
+    GitHub (offered only for an email that already belongs to a workspace, or to start a new one).
   - Nothing is sold in the app (guideline 3.1.3(b)).
   - Give the reviewer a demo workspace sign-in.
 - **Android:** builds and signs the `.aab` and keeps it as the run's artifact. With `PLAY_SERVICE_ACCOUNT_JSON`

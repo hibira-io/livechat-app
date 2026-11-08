@@ -45,3 +45,15 @@ test("the plugins only open links on the Live Chat host", () => {
   assert.match(java, /HOST = "chat\.hibira\.io"/);
   assert.match(swift, /url\.scheme == "https", url\.host == Self\.host/);
 });
+
+test("provider sign-ins come back on the app's scheme", () => {
+  const manifest = read("android/app/src/main/AndroidManifest.xml");
+  assert.ok(manifest.includes('android:scheme="io.hibira.chat" android:host="auth"'));
+  const swift = read("plugins/hibira-chat-push/ios/Sources/HibiraChatPushPlugin/HibiraChatAuthPlugin.swift");
+  const java = read("plugins/hibira-chat-push/android/src/main/java/io/hibira/chat/push/HibiraChatAuthPlugin.java");
+  assert.match(swift, /static let scheme = "io\.hibira\.chat"/);
+  assert.match(java, /SCHEME = "io\.hibira\.chat"/);
+  // Only the Live Chat host's /auth/ pages open in the browser.
+  assert.match(swift, /url\.host == HibiraChatPushPlugin\.host, url\.path\.hasPrefix\("\/auth\/"\)/);
+  assert.match(java, /startsWith\("\/auth\/"\)/);
+});
