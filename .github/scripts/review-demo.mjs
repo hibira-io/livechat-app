@@ -40,8 +40,17 @@ if ((list.conversations ?? list.items ?? []).length) {
 }
 
 await call("/api/v1/workspace", { name: "Sakura Tea", origins: [SITE] });
-await call("/api/v1/knowledge", { kind: "qa", title: "How long does shipping take?", body: "We ship within 1 business day. Delivery takes 2–4 days in Japan and Taiwan, and 4–7 days elsewhere in Asia." });
-await call("/api/v1/knowledge", { kind: "qa", title: "Can I return tea I have opened?", body: "Unopened tea can be returned within 14 days. If a pack arrived damaged, send us a photo and we'll replace it." });
+// The review workspace is on the Free plan, whose knowledge base may be
+// full or absent: the sample chats matter more, so a full base is fine.
+for (const entry of [
+  { kind: "qa", title: "How long does shipping take?", body: "We ship within 1 business day. Delivery takes 2–4 days in Japan and Taiwan, and 4–7 days elsewhere in Asia." },
+  { kind: "qa", title: "Can I return tea I have opened?", body: "Unopened tea can be returned within 14 days. If a pack arrived damaged, send us a photo and we'll replace it." },
+]) {
+  await call("/api/v1/knowledge", entry).catch((e) => {
+    if (!String(e.message).includes(" 402 ")) throw e;
+    console.log("Knowledge base is full on this plan; skipped an entry");
+  });
+}
 
 /** @param {string} name @param {string} email @param {string} page @param {string} text */
 async function start(name, email, page, text) {
