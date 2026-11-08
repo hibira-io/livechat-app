@@ -1,0 +1,77 @@
+# A signed APK to install by hand on a test phone (no Play needed).
+# Actions → android-apk → Run workflow; the APK is the run's artifact.
+# Same upload key and Firebase config as the release build, so push works
+# and a later Play install of the same key updates it in place.
+name: android-apk
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version name shown in the app (code is derived, e.g. 0.1.1 → 1001001)
+        default: "0.1.1"
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: { node-version: 22, cache: npm }
+      - uses: actions/setup-java@v5
+        with: { distribution: temurin, java-version: "21", cache: gradle }
+      - uses: android-actions/setup-android@v3
+        with: { packages: "platforms;android-36 build-tools;36.0.0" }
+
+      - name: Version
+        id: version
+        env:
+          V: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          [[ "$V" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]] || { echo "::error::version must look like 1.2.3"; exit 1; }
+          echo "name=$V" >> "$GITHUB_OUTPUT"
+          echo "code=$((10#${BASH_REMATCH[1]} * 1000000 + 10#${BASH_REMATCH[2]} * 1000 + 10#${BASH_REMATCH[3]}))" >> "$GITHUB_OUTPUT"
+
+      - name: Keys
+        env:
+          KEYSTORE: ${{ secrets.ANDROID_UPLOAD_KEYSTORE }}
+          PASS: ${{ secrets.ANDROID_UPLOAD_PASSWORD }}
+          SERVICES: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          set -euo pipefail
+          [ -n "$KEYSTORE" ] && [ -n "$PASS" ] && [ -n "$SERVICES" ] || { echo "::error::Missing ANDROID_UPLOAD_KEYSTORE / ANDROID_UPLOAD_PASSWORD / GOOGLE_SERVICES_JSON"; exit 1; }
+          printf %s "$KEYSTORE" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          printf %s "$SERVICES" > android/app/google-services.json
+          alias=$(keytool -list -keystore "$RUNNER_TEMP/upload.jks" -storepass "$PASS" | sed -n 's/^\([^,]*\),.*PrivateKeyEntry.*/\1/p' | head -1)
+          echo "KEY_ALIAS=$alias" >> "$GITHUB_ENV"
+
+      - name: Build the APK
+        env:
+          PASS: ${{ secrets.ANDROID_UPLOAD_PASSWORD }}
+          CODE: ${{ steps.version.outputs.code }}
+          NAME: ${{ steps.version.outputs.name }}
+        run: |
+          set -euo pipefail
+          npm ci && npx cap sync android
+          cd android && chmod +x gradlew
+          ./gradlew --no-daemon assembleRelease \
+            -PversionCode="$CODE" -PversionName="$NAME" \
+            -Pandroid.injected.signing.store.file="$RUNNER_TEMP/upload.jks" \
+            -Pandroid.injected.signing.store.password="$PASS" \
+            -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$PASS"
+          cp app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/hibira-chat-$NAME.apk"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt2" dump badging "$RUNNER_TEMP/hibira-chat-$NAME.apk" | grep -E "^package|sdkVersion" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: hibira-chat-${{ steps.version.outputs.name }}-apk
+          path: ${{ runner.temp }}/hibira-chat-${{ steps.version.outputs.name }}.apk
+          retention-days: 30
+
+      - name: Clean up
+        if: always()
+        run: rm -f "$RUNNER_TEMP/upload.jks" android/app/google-services.json
