@@ -1,5 +1,6 @@
 # A signed APK to install by hand on a test phone (no Play needed).
 # Actions → android-apk → Run workflow; the APK is the run's artifact.
+# It also runs when this file changes, so a new version of it is tried.
 # Same upload key and Firebase config as the release build, so push works
 # and a later Play install of the same key updates it in place.
 name: android-apk
@@ -9,6 +10,8 @@ on:
       version:
         description: Version name shown in the app (code is derived, e.g. 0.1.1 → 1001001)
         default: "0.1.1"
+  push:
+    paths: [.github/workflows/android-apk.yml]
 
 permissions:
   contents: read
@@ -28,7 +31,7 @@ jobs:
       - name: Version
         id: version
         env:
-          V: ${{ inputs.version }}
+          V: ${{ inputs.version || '0.1.1' }}
         run: |
           set -euo pipefail
           [[ "$V" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]] || { echo "::error::version must look like 1.2.3"; exit 1; }
