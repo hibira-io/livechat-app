@@ -1,0 +1,10 @@
+{
+  "name": "Hibira Chat",
+  "subtitle": "随时随地回复网站聊天",
+  "privacyPolicyUrl": "https://chat.hibira.io/legal/privacy",
+  "description": "Hibira Chat 是 Hibira Live Chat 的手机收件箱。访客在你的网站上发消息时，手机会立刻通知你，随时随地都能回复。\n\n• 共享收件箱：查看团队所有进行中的对话，一键接手，实时回复。\n• 通知：新对话、分配给你的对话和访客回复都会推送通知。点一下就能打开该对话。\n• 评分：查看客户给每次对话的评分，第一时间发现不满意的客户。\n• 自动回复：简单的问题根据你自己的问答自动回答，需要人工时再转给团队。\n• 灵活登录：发送到工作邮箱的登录链接，或公司自己的单点登录。\n• 支持 7 种语言：英语、日语、韩语、泰语、越南语、简体中文和繁体中文。\n\n使用 Hibira Chat 需要一个 Hibira Live Chat 工作区。工作区所有者在 chat.hibira.io 创建后邀请团队加入。免费方案包含 2 位客服。",
+  "keywords": "在线客服,客服,网站聊天,收件箱,客户支持,咨询,即时聊天,人工客服",
+  "promotionalText": "访客一发消息就收到通知，用手机直接回复，还能查看每次对话的评分。",
+  "supportUrl": "https://chat.hibira.io/zh-CN/",
+  "marketingUrl": "https://chat.hibira.io/zh-CN/"
+}
