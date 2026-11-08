@@ -21,3 +21,21 @@ for (const bundle of [process.env.REF_BUNDLE_ID || "io.hibira.gaya", process.env
     break;
   }
 }
+
+// TestFlight builds of the app and their state.
+{
+  const app = await findApp(process.env.BUNDLE_ID || "io.hibira.chat");
+  const builds = (await asc("GET", `/builds?filter[app]=${app.id}&sort=-uploadedDate&limit=5&include=preReleaseVersion,buildBetaDetail`));
+  const inc = Object.fromEntries((builds.included ?? []).map((/** @type {any} */ i) => [`${i.type}:${i.id}`, i]));
+  for (const b of builds.data) {
+    const pre = inc[`preReleaseVersions:${b.relationships?.preReleaseVersion?.data?.id}`];
+    const det = inc[`buildBetaDetails:${b.relationships?.buildBetaDetail?.data?.id}`];
+    console.log(`build ${pre?.attributes?.version ?? "?"} (${b.attributes.version}) uploaded=${b.attributes.uploadedDate} processing=${b.attributes.processingState} expired=${b.attributes.expired} internal=${det?.attributes?.internalBuildState} external=${det?.attributes?.externalBuildState}`);
+  }
+  const groups = (await asc("GET", `/apps/${app.id}/betaGroups?limit=10`)).data;
+  for (const g of groups) {
+    const testers = (await asc("GET", `/betaGroups/${g.id}/betaTesters?limit=50`)).data;
+    const gb = (await asc("GET", `/betaGroups/${g.id}/builds?limit=5`)).data;
+    console.log(`group "${g.attributes.name}" internal=${g.attributes.isInternalGroup} testers=${testers.length} builds=${gb.map((/** @type {any} */ x) => x.attributes.version).join(",")}`);
+  }
+}
