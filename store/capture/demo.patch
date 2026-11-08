@@ -1,0 +1,62 @@
+diff --git a/internal/server/livechat.go b/internal/server/livechat.go
+index f5c3c4c..cd81ea7 100644
+--- a/internal/server/livechat.go
++++ b/internal/server/livechat.go
+@@ -7,6 +7,7 @@ import (
+ 	"io"
+ 	"net"
+ 	"net/http"
++	"os"
+ 	"strings"
+ 	"sync"
+ 	"time"
+@@ -24,6 +25,9 @@ import (
+ // support chat (ASSISTANT_MODEL), with the workspace's prompt and
+ // knowledge instead of Hibira's.
+ func (s *Server) liveChatAI() func(context.Context, livechat.AIRequest) (livechat.AIAnswer, error) {
++	if os.Getenv("LIVECHAT_DEMO_AI") != "" {
++		return demoAI
++	}
+ 	if s.assistant == nil {
+ 		return nil
+ 	}
+@@ -54,6 +58,10 @@ func (s *Server) setupLiveChat() {
+ 	svc = livechat.New(livechat.Deps{
+ 		Store: store,
+ 		SendMail: func(ctx context.Context, m livechat.Mail) error {
++			if os.Getenv("LIVECHAT_DEMO_AI") != "" {
++				s.log.Info("DEMO MAIL", "to", m.To, "link", m.Link)
++				return nil
++			}
+ 			return s.billing.SendLiveChatLink(ctx, billing.LiveChatLink{
+ 				To: m.To, Link: m.Link, Kind: m.Kind, Workspace: m.Workspace, By: m.By, Locale: m.Locale,
+ 				FromName: svc.Settings(ctx).MailFromName, Expires: m.Expires,
+@@ -246,3 +254,28 @@ func (p *liveChatPush) Send(ctx context.Context, userIDs []string, title, body,
+ 	}
+ 	return err
+ }
++
++// demoAI is a local recording stub: it answers with the first picked
++// knowledge entry, or hands off when none fits.
++func demoAI(ctx context.Context, r livechat.AIRequest) (livechat.AIAnswer, error) {
++	time.Sleep(1200 * time.Millisecond)
++	k := r.Knowledge
++	last := r.Turns[len(r.Turns)-1].Text
++	for _, w := range []string{"order", "注文", "訂單", "订单", "주문", "คำสั่งซื้อ", "đơn"} {
++		if strings.Contains(strings.ToLower(last), w) {
++			return livechat.AIAnswer{Handoff: true, Reason: os.Getenv("LIVECHAT_DEMO_REASON")}, nil
++		}
++	}
++	if k == "" {
++		return livechat.AIAnswer{Handoff: true, Reason: ""}, nil
++	}
++	if i := strings.Index(k, "\nA: "); i >= 0 {
++		k = k[i+4:]
++	} else if i := strings.Index(k, "\n"); i >= 0 {
++		k = k[i+1:]
++	}
++	if i := strings.Index(k, "\n\n"); i >= 0 {
++		k = k[:i]
++	}
++	return livechat.AIAnswer{Reply: strings.TrimSpace(k), Cost: 0.0004}, nil
++}

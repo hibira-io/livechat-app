@@ -1,0 +1,492 @@
+{
+ "en": {
+  "locale": "en-US",
+  "assignMe": "Assign to me",
+  "shop": {
+   "nav": [
+    "Shop",
+    "Gifts",
+    "Journal"
+   ],
+   "cart": "Cart (1)",
+   "h1": "First flush sencha, picked this spring",
+   "p": "Small-batch green tea from Shizuoka, shipped fresh across Asia.",
+   "btn": "Shop the harvest",
+   "items": [
+    "Shizuoka Sencha",
+    "Roasted Hojicha",
+    "Sakura Blend"
+   ]
+  },
+  "kb": [
+   [
+    "How long does shipping take?",
+    "We ship within 1 business day. Delivery takes 2–4 days in Japan and Taiwan, and 4–7 days elsewhere in Asia."
+   ],
+   [
+    "Can I return tea I have opened?",
+    "Unopened tea can be returned within 14 days. If a pack arrived damaged, send us a photo and we'll replace it."
+   ],
+   [
+    "Brewing guide",
+    "Sencha: 70°C water, 60 seconds. Hojicha: 90°C water, 30 seconds.",
+    "article"
+   ]
+  ],
+  "q1": "How long does shipping to Taiwan take?",
+  "q2": "Where is my order #1042?",
+  "a1": "Hi, I'm Aiko! Order #1042 left our warehouse this morning and should reach you on Thursday.",
+  "q3": "Perfect, thank you!",
+  "kq": "Do you ship to Singapore?",
+  "ka": "Yes! Delivery to Singapore takes 4–7 days, and shipping is free on orders over $50.",
+  "tq": "Is shipping to Singapore free?",
+  "instr": "Be warm and brief.",
+  "bg": [
+   [
+    "Emma Lee",
+    "",
+    "/products/sencha",
+    "Can I return tea I've opened?"
+   ],
+   [
+    "Noah Park",
+    "",
+    "/account/orders",
+    "Can I change the address on order #1038?"
+   ],
+   [
+    "Olivia Chen",
+    "",
+    "/journal/brewing",
+    "What water temperature for sencha?"
+   ],
+   [
+    "Liam Wong",
+    "",
+    "/gifts",
+    "How long does shipping to Hong Kong take?"
+   ]
+  ],
+  "reason": "Asks about a specific order"
+ },
+ "ja": {
+  "locale": "ja-JP",
+  "assignMe": "自分が担当",
+  "shop": {
+   "nav": [
+    "ショップ",
+    "ギフト",
+    "読みもの"
+   ],
+   "cart": "カート (1)",
+   "h1": "今年の一番茶、届きました",
+   "p": "静岡の小さな茶園から、摘みたての緑茶をアジア各地へ。",
+   "btn": "新茶を見る",
+   "items": [
+    "静岡煎茶",
+    "焙煎ほうじ茶",
+    "さくらブレンド"
+   ]
+  },
+  "kb": [
+   [
+    "配送には何日かかりますか？",
+    "1 営業日以内に発送します。日本と台湾へは 2〜4 日、その他のアジア地域へは 4〜7 日で届きます。"
+   ],
+   [
+    "開封したお茶は返品できますか？",
+    "未開封のお茶は 14 日以内なら返品できます。破損して届いた場合は、写真を送っていただければ交換します。"
+   ],
+   [
+    "淹れ方ガイド",
+    "煎茶：70°C のお湯で 60 秒。ほうじ茶：90°C のお湯で 30 秒。",
+    "article"
+   ]
+  ],
+  "q1": "台湾までの配送は何日かかりますか？",
+  "q2": "注文 #1042 はいまどこですか？",
+  "a1": "Aiko です！ご注文 #1042 は今朝倉庫を出発し、木曜日に届く予定です。",
+  "q3": "ありがとうございます！",
+  "kq": "シンガポールへ配送できますか？",
+  "ka": "はい！シンガポールへは 4〜7 日で届きます。50 ドル以上のお買い物で送料無料です。",
+  "tq": "シンガポールへの配送は送料無料ですか？",
+  "instr": "やさしく、簡潔に答えてください。",
+  "bg": [
+   [
+    "佐藤 美咲",
+    "",
+    "/products/sencha",
+    "開封したお茶は返品できますか？"
+   ],
+   [
+    "鈴木 翔太",
+    "",
+    "/account/orders",
+    "注文 #1038 の届け先を変えられますか？"
+   ],
+   [
+    "高橋 結衣",
+    "",
+    "/journal/brewing",
+    "煎茶は何度のお湯で淹れますか？"
+   ],
+   [
+    "田中 健",
+    "",
+    "/gifts",
+    "香港までの配送は何日かかりますか？"
+   ]
+  ],
+  "reason": "特定の注文についての問い合わせ"
+ },
+ "ko": {
+  "locale": "ko-KR",
+  "assignMe": "내가 담당",
+  "shop": {
+   "nav": [
+    "상점",
+    "선물",
+    "이야기"
+   ],
+   "cart": "장바구니 (1)",
+   "h1": "올봄 첫물 센차가 도착했어요",
+   "p": "시즈오카의 작은 다원에서 갓 딴 녹차를 아시아 전역에 보내 드립니다.",
+   "btn": "햇차 보기",
+   "items": [
+    "시즈오카 센차",
+    "로스팅 호지차",
+    "사쿠라 블렌드"
+   ]
+  },
+  "kb": [
+   [
+    "배송은 얼마나 걸리나요?",
+    "영업일 기준 1일 이내에 발송합니다. 일본과 대만은 2–4일, 그 밖의 아시아 지역은 4–7일 걸립니다."
+   ],
+   [
+    "개봉한 차도 반품할 수 있나요?",
+    "미개봉 차는 14일 이내에 반품할 수 있습니다. 파손된 상태로 받으셨다면 사진을 보내 주세요. 새 상품으로 교환해 드립니다."
+   ],
+   [
+    "우려내는 법",
+    "센차: 70°C 물에 60초. 호지차: 90°C 물에 30초.",
+    "article"
+   ]
+  ],
+  "q1": "대만까지 배송은 며칠 걸리나요?",
+  "q2": "주문 #1042는 지금 어디쯤인가요?",
+  "a1": "Aiko입니다! 주문 #1042는 오늘 아침 창고에서 출발했고 목요일에 도착할 예정입니다.",
+  "q3": "감사합니다!",
+  "kq": "싱가포르 배송도 되나요?",
+  "ka": "네! 싱가포르까지 4–7일 걸리며, 50달러 이상 구매하시면 무료 배송입니다.",
+  "tq": "싱가포르 배송도 무료인가요?",
+  "instr": "친절하고 간결하게 답해 주세요.",
+  "bg": [
+   [
+    "김지민",
+    "",
+    "/products/sencha",
+    "개봉한 차도 반품할 수 있나요?"
+   ],
+   [
+    "이준호",
+    "",
+    "/account/orders",
+    "주문 #1038 배송지를 바꿀 수 있나요?"
+   ],
+   [
+    "박서연",
+    "",
+    "/journal/brewing",
+    "센차는 몇 도 물로 우리나요?"
+   ],
+   [
+    "최민수",
+    "",
+    "/gifts",
+    "홍콩까지 배송은 며칠 걸리나요?"
+   ]
+  ],
+  "reason": "특정 주문 문의"
+ },
+ "zh-TW": {
+  "locale": "zh-TW",
+  "assignMe": "指派給我",
+  "shop": {
+   "nav": [
+    "商店",
+    "禮盒",
+    "茶誌"
+   ],
+   "cart": "購物車 (1)",
+   "h1": "今年春天的頭番煎茶到貨了",
+   "p": "來自靜岡小茶園的綠茶，新鮮寄送到亞洲各地。",
+   "btn": "選購新茶",
+   "items": [
+    "靜岡煎茶",
+    "焙煎焙茶",
+    "櫻花綜合茶"
+   ]
+  },
+  "kb": [
+   [
+    "運送需要多久？",
+    "我們會在 1 個工作天內出貨。寄到日本和台灣約 2–4 天，亞洲其他地區約 4–7 天。"
+   ],
+   [
+    "開封過的茶可以退貨嗎？",
+    "未開封的茶 14 天內可以退貨。如果收到時包裝破損，拍照給我們，我們會幫你換新。"
+   ],
+   [
+    "沖泡指南",
+    "煎茶：70°C 熱水，60 秒。焙茶：90°C 熱水，30 秒。",
+    "article"
+   ]
+  ],
+  "q1": "寄到台灣要幾天？",
+  "q2": "我的訂單 #1042 到哪了？",
+  "a1": "我是 Aiko！訂單 #1042 今天早上已經出貨，預計星期四送達。",
+  "q3": "太好了，謝謝！",
+  "kq": "可以寄到新加坡嗎？",
+  "ka": "可以！寄到新加坡約 4–7 天，消費滿 50 美元免運費。",
+  "tq": "寄到新加坡有免運嗎？",
+  "instr": "語氣親切、回答簡短。",
+  "bg": [
+   [
+    "林雅婷",
+    "",
+    "/products/sencha",
+    "開封過的茶可以退貨嗎？"
+   ],
+   [
+    "陳柏翰",
+    "",
+    "/account/orders",
+    "訂單 #1038 可以改寄送地址嗎？"
+   ],
+   [
+    "王怡君",
+    "",
+    "/journal/brewing",
+    "煎茶要用幾度的水沖？"
+   ],
+   [
+    "張家豪",
+    "",
+    "/gifts",
+    "寄到香港要幾天？"
+   ]
+  ],
+  "reason": "詢問特定訂單"
+ },
+ "zh-CN": {
+  "locale": "zh-CN",
+  "assignMe": "分配给我",
+  "shop": {
+   "nav": [
+    "商店",
+    "礼盒",
+    "茶志"
+   ],
+   "cart": "购物车 (1)",
+   "h1": "今年春天的头茬煎茶到货了",
+   "p": "来自静冈小茶园的绿茶，新鲜寄送到亚洲各地。",
+   "btn": "选购新茶",
+   "items": [
+    "静冈煎茶",
+    "烘焙焙茶",
+    "樱花拼配茶"
+   ]
+  },
+  "kb": [
+   [
+    "配送需要多久？",
+    "我们会在 1 个工作日内发货。寄到日本和台湾约 2–4 天，亚洲其他地区约 4–7 天。"
+   ],
+   [
+    "拆封过的茶可以退货吗？",
+    "未拆封的茶 14 天内可以退货。如果收到时包装破损，拍照发给我们，我们会为你换新。"
+   ],
+   [
+    "冲泡指南",
+    "煎茶：70°C 热水，60 秒。焙茶：90°C 热水，30 秒。",
+    "article"
+   ]
+  ],
+  "q1": "寄到台湾要几天？",
+  "q2": "我的订单 #1042 到哪了？",
+  "a1": "我是 Aiko！订单 #1042 今天早上已经发货，预计周四送达。",
+  "q3": "太好了，谢谢！",
+  "kq": "可以寄到新加坡吗？",
+  "ka": "可以！寄到新加坡约 4–7 天，消费满 50 美元包邮。",
+  "tq": "寄到新加坡包邮吗？",
+  "instr": "语气亲切、回答简短。",
+  "bg": [
+   [
+    "李思雨",
+    "",
+    "/products/sencha",
+    "开封过的茶可以退货吗？"
+   ],
+   [
+    "王浩然",
+    "",
+    "/account/orders",
+    "订单 #1038 可以改收货地址吗？"
+   ],
+   [
+    "张晓琳",
+    "",
+    "/journal/brewing",
+    "煎茶要用多少度的水泡？"
+   ],
+   [
+    "刘子轩",
+    "",
+    "/gifts",
+    "寄到香港要几天？"
+   ]
+  ],
+  "reason": "询问具体订单"
+ },
+ "th": {
+  "locale": "th-TH",
+  "assignMe": "มอบหมายให้ฉัน",
+  "shop": {
+   "nav": [
+    "ร้านค้า",
+    "ของขวัญ",
+    "บทความ"
+   ],
+   "cart": "ตะกร้า (1)",
+   "h1": "ชาเขียวเซนฉะเก็บแรกของฤดูใบไม้ผลินี้",
+   "p": "ชาเขียวจากไร่เล็ก ๆ ในชิซูโอกะ ส่งสดใหม่ทั่วเอเชีย",
+   "btn": "เลือกชาใหม่",
+   "items": [
+    "เซนฉะชิซูโอกะ",
+    "โฮจิฉะคั่ว",
+    "ซากุระเบลนด์"
+   ]
+  },
+  "kb": [
+   [
+    "จัดส่ง ใช้เวลากี่วัน",
+    "เราส่งของภายใน 1 วันทำการ ญี่ปุ่นและไต้หวันได้รับใน 2–4 วัน ประเทศอื่นในเอเชีย 4–7 วัน"
+   ],
+   [
+    "ชาที่เปิดแล้ว คืนได้ไหม",
+    "ชาที่ยังไม่เปิดคืนได้ภายใน 14 วัน หากสินค้าเสียหายระหว่างขนส่ง ส่งรูปมาให้เรา แล้วเราจะเปลี่ยนให้ใหม่"
+   ],
+   [
+    "วิธีชง",
+    "เซนฉะ: น้ำ 70°C 60 วินาที โฮจิฉะ: น้ำ 90°C 30 วินาที",
+    "article"
+   ]
+  ],
+  "q1": "จัดส่ง ไปไต้หวัน ใช้เวลากี่วันคะ",
+  "q2": "คำสั่งซื้อ #1042 ของฉันอยู่ที่ไหนคะ",
+  "a1": "Aiko ค่ะ! คำสั่งซื้อ #1042 ออกจากคลังสินค้าเมื่อเช้านี้ และจะถึงวันพฤหัสบดีค่ะ",
+  "q3": "ขอบคุณมากค่ะ!",
+  "kq": "ส่งไป สิงคโปร์ ได้ไหม",
+  "ka": "ได้ค่ะ! ส่งไปสิงคโปร์ใช้เวลา 4–7 วัน และส่งฟรีเมื่อซื้อครบ 50 ดอลลาร์",
+  "tq": "ส่งไป สิงคโปร์ ฟรีไหมคะ",
+  "instr": "ตอบอย่างเป็นมิตรและกระชับ",
+  "bg": [
+   [
+    "สมชาย ใจดี",
+    "",
+    "/products/sencha",
+    "ชาที่เปิดแล้ว คืนได้ไหม"
+   ],
+   [
+    "กมลวรรณ ศรีสุข",
+    "",
+    "/account/orders",
+    "ขอเปลี่ยนที่อยู่จัดส่งคำสั่งซื้อ #1038 ได้ไหม"
+   ],
+   [
+    "ณัฐพล วงศ์ไทย",
+    "",
+    "/journal/brewing",
+    "วิธีชง"
+   ],
+   [
+    "พิมพ์ชนก แก้วมณี",
+    "",
+    "/gifts",
+    "จัดส่ง ใช้เวลากี่วัน"
+   ]
+  ],
+  "reason": "สอบถามคำสั่งซื้อเฉพาะ"
+ },
+ "vi": {
+  "locale": "vi-VN",
+  "assignMe": "Giao cho tôi",
+  "shop": {
+   "nav": [
+    "Cửa hàng",
+    "Quà tặng",
+    "Góc trà"
+   ],
+   "cart": "Giỏ hàng (1)",
+   "h1": "Sencha vụ đầu xuân năm nay đã về",
+   "p": "Trà xanh từ một nông trại nhỏ ở Shizuoka, gửi tươi khắp châu Á.",
+   "btn": "Xem trà mới",
+   "items": [
+    "Sencha Shizuoka",
+    "Hojicha rang",
+    "Sakura Blend"
+   ]
+  },
+  "kb": [
+   [
+    "Giao hàng mất bao lâu?",
+    "Chúng tôi gửi hàng trong 1 ngày làm việc. Giao đến Nhật Bản và Đài Loan mất 2–4 ngày, các nước châu Á khác 4–7 ngày."
+   ],
+   [
+    "Trà đã mở có trả lại được không?",
+    "Trà chưa mở có thể trả lại trong 14 ngày. Nếu gói trà bị hư khi nhận, hãy gửi ảnh để chúng tôi đổi mới."
+   ],
+   [
+    "Cách pha trà",
+    "Sencha: nước 70°C, 60 giây. Hojicha: nước 90°C, 30 giây.",
+    "article"
+   ]
+  ],
+  "q1": "Giao hàng đến Đài Loan mất bao lâu?",
+  "q2": "Đơn hàng #1042 của tôi đang ở đâu?",
+  "a1": "Mình là Aiko! Đơn #1042 đã rời kho sáng nay và sẽ đến vào thứ Năm.",
+  "q3": "Tuyệt quá, cảm ơn bạn!",
+  "kq": "Có giao hàng đến Singapore không?",
+  "ka": "Có! Giao đến Singapore mất 4–7 ngày, miễn phí vận chuyển cho đơn từ 50 USD.",
+  "tq": "Giao hàng đến Singapore có miễn phí không?",
+  "instr": "Trả lời thân thiện và ngắn gọn.",
+  "bg": [
+   [
+    "Nguyễn Thu Hà",
+    "",
+    "/products/sencha",
+    "Trà đã mở có trả lại được không?"
+   ],
+   [
+    "Trần Minh Khoa",
+    "",
+    "/account/orders",
+    "Đơn #1038 đổi địa chỉ giao được không?"
+   ],
+   [
+    "Lê Bảo Ngọc",
+    "",
+    "/journal/brewing",
+    "Pha sencha bằng nước bao nhiêu độ?"
+   ],
+   [
+    "Phạm Quốc Anh",
+    "",
+    "/gifts",
+    "Giao tới Hồng Kông mất bao lâu?"
+   ]
+  ],
+  "reason": "Hỏi về một đơn hàng cụ thể"
+ }
+}
