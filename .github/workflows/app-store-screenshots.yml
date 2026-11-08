@@ -2,7 +2,8 @@
 # Works on the iOS version being prepared in App Store Connect (created as
 # `version` when there is none), with the same team API key as the release:
 # - metadata: store/ios/metadata (texts per language, categories, age
-#   rating, content rights, review details)
+#   rating, content rights, review details) and sample chats for the
+#   App Review account (secrets ASC_DEMO_USER / ASC_DEMO_PASSWORD)
 # - screenshots: replaces the 6.9" iPhone screenshots with
 #   store/ios/screenshots/<locale>/*, in name order
 # - inspect: prints the reference app's age rating and review details
@@ -48,6 +49,12 @@ jobs:
           ASC_DEMO_USER: ${{ secrets.ASC_DEMO_USER }}
           ASC_DEMO_PASSWORD: ${{ secrets.ASC_DEMO_PASSWORD }}
         run: node .github/scripts/asc-metadata.mjs
+      - name: Demo chats
+        if: inputs.step == 'all' || inputs.step == 'metadata'
+        env:
+          ASC_DEMO_USER: ${{ secrets.ASC_DEMO_USER }}
+          ASC_DEMO_PASSWORD: ${{ secrets.ASC_DEMO_PASSWORD }}
+        run: node .github/scripts/review-demo.mjs
       - name: Screenshots
         if: inputs.step == 'all' || inputs.step == 'screenshots'
         run: node .github/scripts/asc-screenshots.mjs
