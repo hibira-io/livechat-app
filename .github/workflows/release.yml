@@ -1,0 +1,150 @@
+# A release tag (v1.2.3) builds both store apps: version 1.2.3, build
+# number 1002003. See README → Releasing.
+#
+# Secrets (Settings → Secrets and variables → Actions; org-level secrets
+# shared with Gaya work too):
+#   iPhone   APPLE_TEAM_ID (org variable), ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8
+#   Android  ANDROID_UPLOAD_KEYSTORE (base64 of the .jks),
+#            ANDROID_UPLOAD_PASSWORD, GOOGLE_SERVICES_JSON (Firebase),
+#            PLAY_SERVICE_ACCOUNT_JSON (optional: upload to internal testing)
+name: release
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+
+jobs:
+  ios:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v7
+      - name: Version from the tag
+        id: version
+        run: .github/scripts/app-version.sh
+
+      - name: App Store Connect key
+        env:
+          TEAM: ${{ vars.APPLE_TEAM_ID || secrets.APPLE_TEAM_ID }}
+          KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ISSUER: ${{ secrets.ASC_ISSUER_ID }}
+          P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          set -euo pipefail
+          for n in TEAM KEY_ID ISSUER P8; do
+            [ -n "${!n}" ] || { echo "::error::Missing APPLE_TEAM_ID (org variable) or secret (ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8): see README"; exit 1; }
+          done
+          [[ "$TEAM" =~ ^[A-Z0-9]{10}$ ]] || { echo "::error::APPLE_TEAM_ID is 10 letters and digits"; exit 1; }
+          printf '%s\n' "$P8" > "$RUNNER_TEMP/AuthKey.p8"
+          plutil -create xml1 "$RUNNER_TEMP/export.plist"
+          plutil -insert method -string app-store-connect "$RUNNER_TEMP/export.plist"
+          plutil -insert destination -string upload "$RUNNER_TEMP/export.plist"
+          plutil -insert signingStyle -string automatic "$RUNNER_TEMP/export.plist"
+          plutil -insert teamID -string "$TEAM" "$RUNNER_TEMP/export.plist"
+          plutil -insert manageAppVersionAndBuildNumber -bool NO "$RUNNER_TEMP/export.plist"
+          {
+            echo "TEAM=$TEAM"
+            echo "AUTH=-allowProvisioningUpdates -authenticationKeyPath $RUNNER_TEMP/AuthKey.p8 -authenticationKeyID $KEY_ID -authenticationKeyIssuerID $ISSUER"
+          } >> "$GITHUB_ENV"
+
+      - uses: actions/setup-node@v7
+        with: { node-version: 22, cache: npm }
+      - run: npm ci && npx cap sync ios
+
+      - name: Archive
+        env:
+          CODE: ${{ steps.version.outputs.code }}
+          NAME: ${{ steps.version.outputs.name }}
+        run: |
+          set -euo pipefail
+          # $AUTH is several arguments on purpose.
+          # shellcheck disable=SC2086
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
+            -destination "generic/platform=iOS" -archivePath "$RUNNER_TEMP/HibiraChat.xcarchive" \
+            $AUTH DEVELOPMENT_TEAM="$TEAM" CODE_SIGN_STYLE=Automatic \
+            MARKETING_VERSION="$NAME" CURRENT_PROJECT_VERSION="$CODE" archive
+
+      - name: Upload to TestFlight
+        run: |
+          set -euo pipefail
+          # shellcheck disable=SC2086
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/HibiraChat.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/export.plist" -exportPath "$RUNNER_TEMP/export" $AUTH
+          echo "### Hibira Chat iPhone ${{ steps.version.outputs.name }} (build ${{ steps.version.outputs.code }}) sent to TestFlight" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Clean up the key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/AuthKey.p8"
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Version from the tag
+        id: version
+        run: .github/scripts/app-version.sh
+      - uses: actions/setup-node@v7
+        with: { node-version: 22, cache: npm }
+      - uses: actions/setup-java@v5
+        with: { distribution: temurin, java-version: "21", cache: gradle }
+      - uses: android-actions/setup-android@v3
+        with: { packages: "platforms;android-36 build-tools;36.0.0" }
+
+      - name: Keys
+        env:
+          KEYSTORE: ${{ secrets.ANDROID_UPLOAD_KEYSTORE }}
+          PASS: ${{ secrets.ANDROID_UPLOAD_PASSWORD }}
+          SERVICES: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          set -euo pipefail
+          [ -n "$KEYSTORE" ] && [ -n "$PASS" ] || { echo "::error::Missing secret ANDROID_UPLOAD_KEYSTORE / ANDROID_UPLOAD_PASSWORD: see README"; exit 1; }
+          [ -n "$SERVICES" ] || { echo "::error::Missing secret GOOGLE_SERVICES_JSON (Firebase → Project settings → Android app io.hibira.chat): see README"; exit 1; }
+          printf %s "$KEYSTORE" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          printf %s "$SERVICES" > android/app/google-services.json
+          alias=$(keytool -list -keystore "$RUNNER_TEMP/upload.jks" -storepass "$PASS" | sed -n 's/^\([^,]*\),.*PrivateKeyEntry.*/\1/p' | head -1)
+          sha=$(keytool -list -v -keystore "$RUNNER_TEMP/upload.jks" -alias "$alias" -storepass "$PASS" | sed -n 's/.*SHA256: //p')
+          echo "KEY_ALIAS=$alias" >> "$GITHUB_ENV"
+          echo "Upload key SHA-256 (for Live Chat console → Mobile app): \`$sha\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Build the bundle
+        env:
+          PASS: ${{ secrets.ANDROID_UPLOAD_PASSWORD }}
+          CODE: ${{ steps.version.outputs.code }}
+          NAME: ${{ steps.version.outputs.name }}
+        run: |
+          set -euo pipefail
+          npm ci && npx cap sync android
+          cd android && chmod +x gradlew
+          ./gradlew --no-daemon bundleRelease \
+            -PversionCode="$CODE" -PversionName="$NAME" \
+            -Pandroid.injected.signing.store.file="$RUNNER_TEMP/upload.jks" \
+            -Pandroid.injected.signing.store.password="$PASS" \
+            -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$PASS"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: hibira-chat-android-${{ steps.version.outputs.name }}
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 30
+
+      - name: Upload to Play internal testing
+        env:
+          PLAY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        if: env.PLAY != ''
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: io.hibira.chat
+          releaseFiles: android/app/build/outputs/bundle/release/app-release.aab
+          track: internal
+          status: draft
+
+      - name: Clean up
+        if: always()
+        run: rm -f "$RUNNER_TEMP/upload.jks" android/app/google-services.json

@@ -1,0 +1,8 @@
+{
+  "name": "hibira-chat-push",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The agent app's native side: notifications through Hibira Push (hibira-push-ios, hibira-push-android) and sign-in and inbox links opened in the app's web view",
+  "capacitor": { "ios": { "src": "ios" }, "android": { "src": "android" } },
+  "files": ["ios/Sources", "Package.swift", "android/src", "android/build.gradle"]
+}
