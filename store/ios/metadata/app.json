@@ -1,0 +1,33 @@
+{
+  "primaryCategory": "BUSINESS",
+  "secondaryCategory": "PRODUCTIVITY",
+  "contentRightsDeclaration": "DOES_NOT_USE_THIRD_PARTY_CONTENT",
+  "copyright": "2026 Hibira",
+  "ageRating": {
+    "advertising": false,
+    "alcoholTobaccoOrDrugUseOrReferences": "NONE",
+    "contests": "NONE",
+    "gambling": false,
+    "gamblingSimulated": "NONE",
+    "gunsOrOtherWeapons": "NONE",
+    "healthOrWellnessTopics": false,
+    "horrorOrFearThemes": "NONE",
+    "lootBox": false,
+    "matureOrSuggestiveThemes": "NONE",
+    "medicalOrTreatmentInformation": "NONE",
+    "messagingAndChat": true,
+    "parentalControls": false,
+    "ageAssurance": false,
+    "profanityOrCrudeHumor": "NONE",
+    "sexualContentGraphicAndNudity": "NONE",
+    "sexualContentOrNudity": "NONE",
+    "socialMedia": false,
+    "socialMediaAgeRestricted": false,
+    "unrestrictedWebAccess": false,
+    "userGeneratedContent": true,
+    "violenceCartoonOrFantasy": "NONE",
+    "violenceRealistic": "NONE",
+    "violenceRealisticProlongedGraphicOrSadistic": "NONE"
+  },
+  "reviewNotes": "Hibira Chat is the mobile inbox for support agents of Hibira Live Chat (https://chat.hibira.io), a live chat service that businesses add to their own websites. Agents normally sign in with a link sent to their work email or with their company's single sign-on; there is no sign-up in the app, because workspace owners invite their agents from the web.\n\nTo review: enter the demo email below on the sign-in screen. Instead of sending an email, the app asks for a sign-in code: enter the demo password. The inbox then shows a sample shop's chats: one rated 5, one rated 2, and one visitor still waiting. Open a chat to read it, see its rating and reply. Agents get a push notification when a new chat arrives or a visitor replies.\n\nThe app sells nothing and has no in-app purchases; plans are managed by the workspace owner on the web, and billing pages are hidden in the app."
+}

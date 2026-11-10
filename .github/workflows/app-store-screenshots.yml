@@ -1,16 +1,38 @@
-# App Store screenshots: Actions → app-store-screenshots → Run workflow.
-# Replaces the 6.9" iPhone screenshots of the iOS version being prepared in
-# App Store Connect with store/ios/screenshots/<locale>/*, in name order, for
-# each locale folder there. Uses the same team API key as the release.
+# App Store listing: Actions → app-store-screenshots → Run workflow.
+# Works on the iOS version being prepared in App Store Connect (created as
+# `version` when there is none), with the same team API key as the release:
+# - metadata: store/ios/metadata (texts per language, categories, age
+#   rating, content rights, review details) and sample chats for the
+#   App Review account (secrets ASC_DEMO_USER / ASC_DEMO_PASSWORD)
+# - screenshots: replaces the 6.9" iPhone screenshots with
+#   store/ios/screenshots/<locale>/*, in name order
+# - testflight: an internal TestFlight group with every team user in it
+# - inspect: prints the reference app's age rating and review details
 name: app-store-screenshots
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: Version to create when none is being prepared
+        default: "1.0"
+      step:
+        description: What to update
+        type: choice
+        options: [all, metadata, screenshots, creatives, build, pricing, testflight, inspect]
+        default: all
 
 permissions:
   contents: read
 
 concurrency:
   group: app-store-screenshots
+
+env:
+  ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+  ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+  ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+  BUNDLE_ID: io.hibira.chat
+  VERSION: ${{ inputs.version }}
 
 jobs:
   upload:
@@ -19,10 +41,37 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with: { node-version: 22 }
-      - name: Upload
+      - name: Inspect
+        if: inputs.step == 'inspect'
+        run: node .github/scripts/asc-inspect.mjs
+      - name: TestFlight group
+        if: inputs.step == 'testflight'
+        run: node .github/scripts/asc-testflight.mjs
+      - name: Metadata
+        if: inputs.step == 'all' || inputs.step == 'metadata'
         env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
-          BUNDLE_ID: io.hibira.chat
+          ASC_DEMO_USER: ${{ secrets.ASC_DEMO_USER }}
+          ASC_DEMO_PASSWORD: ${{ secrets.ASC_DEMO_PASSWORD }}
+        run: node .github/scripts/asc-metadata.mjs
+      - name: Demo chats
+        if: inputs.step == 'all' || inputs.step == 'metadata'
+        env:
+          ASC_DEMO_USER: ${{ secrets.ASC_DEMO_USER }}
+          ASC_DEMO_PASSWORD: ${{ secrets.ASC_DEMO_PASSWORD }}
+        run: node .github/scripts/review-demo.mjs
+      - name: Screenshots
+        if: inputs.step == 'all' || inputs.step == 'screenshots'
         run: node .github/scripts/asc-screenshots.mjs
+      - name: Header and search results images
+        if: inputs.step == 'all' || inputs.step == 'creatives'
+        run: node .github/scripts/asc-creatives.mjs
+      - name: Newest TestFlight build on the version
+        if: inputs.step == 'build'
+        run: node .github/scripts/asc-build.mjs
+      - name: Free price and territories
+        if: inputs.step == 'pricing'
+        env:
+          # Japan waits for the Telecommunications Business Act notification;
+          # mainland China needs its own licences.
+          EXCLUDE_TERRITORIES: JPN,CHN
+        run: node .github/scripts/asc-pricing.mjs

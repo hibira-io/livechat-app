@@ -1,0 +1,10 @@
+{
+  "name": "Hibira Chat",
+  "subtitle": "Trả lời chat website mọi nơi",
+  "privacyPolicyUrl": "https://chat.hibira.io/legal/privacy",
+  "description": "Hibira Chat là hộp thư di động của Hibira Live Chat. Khi khách truy cập nhắn tin trên website của bạn, điện thoại sẽ báo ngay và bạn có thể trả lời ở bất cứ đâu.\n\n• Hộp thư chung: xem các cuộc trò chuyện đang mở của cả nhóm, nhận một cuộc chỉ bằng một chạm và trả lời theo thời gian thực.\n• Thông báo: cuộc trò chuyện mới, cuộc trò chuyện được giao cho bạn và tin trả lời của khách đều đến dưới dạng thông báo đẩy. Chạm để mở cuộc trò chuyện đó.\n• Đánh giá: xem khách hàng đánh giá từng cuộc trò chuyện ra sao và nhận ra ngay khách chưa hài lòng.\n• Trả lời tự động: câu hỏi đơn giản được trả lời từ phần Hỏi đáp của bạn, và chuyển cho nhóm khi cần người hỗ trợ.\n• Đăng nhập theo cách của bạn: liên kết đăng nhập gửi tới email công việc, hoặc đăng nhập một lần (SSO) của công ty.\n• Bảy ngôn ngữ: tiếng Anh, Nhật, Hàn, Thái, Việt, Trung giản thể và Trung phồn thể.\n\nHibira Chat cần một workspace Hibira Live Chat. Chủ workspace tạo tại chat.hibira.io và mời nhóm tham gia. Gói miễn phí có 2 nhân viên hỗ trợ.",
+  "keywords": "live chat,chăm sóc khách hàng,hỗ trợ,hộp thư,chat website,tư vấn,helpdesk,CSKH",
+  "promotionalText": "Nhận thông báo ngay khi khách truy cập nhắn tin, trả lời từ điện thoại và xem đánh giá của từng cuộc trò chuyện.",
+  "supportUrl": "https://chat.hibira.io/vi/",
+  "marketingUrl": "https://chat.hibira.io/vi/"
+}
