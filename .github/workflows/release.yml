@@ -77,6 +77,15 @@ jobs:
             -exportOptionsPlist "$RUNNER_TEMP/export.plist" -exportPath "$RUNNER_TEMP/export" $AUTH
           echo "### Hibira Chat iPhone ${{ steps.version.outputs.name }} (build ${{ steps.version.outputs.code }}) sent to TestFlight" >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Revoke this runner's development certificate
+        if: always()
+        working-directory: .
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: node .github/scripts/asc-revoke-runner-cert.mjs
+
       - name: Clean up the key
         if: always()
         run: rm -f "$RUNNER_TEMP/AuthKey.p8"
