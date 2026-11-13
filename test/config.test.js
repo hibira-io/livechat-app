@@ -57,3 +57,9 @@ test("provider sign-ins come back on the app's scheme", () => {
   assert.match(swift, /url\.host == HibiraChatPushPlugin\.host, url\.path\.hasPrefix\("\/auth\/"\)/);
   assert.match(java, /startsWith\("\/auth\/"\)/);
 });
+
+test("the signed-in session stays out of Android backups", () => {
+  // The web view's cookies are app data: a cloud or device-to-device backup
+  // would carry the session to another device.
+  assert.match(read("android/app/src/main/AndroidManifest.xml"), /android:allowBackup="false"/);
+});
