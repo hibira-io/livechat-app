@@ -1,0 +1,23 @@
+# Monthly update pull requests for the app's npm packages and the workflows'
+# actions: one grouped pull request per ecosystem. Major versions of npm
+# packages are migrations we take on purpose, not from a bot, so they're
+# ignored here. Security updates come grouped too. Actions are pinned to a
+# commit; Dependabot moves the pin and keeps the version comment beside it.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule: { interval: monthly }
+    open-pull-requests-limit: 2
+    ignore:
+      - dependency-name: "*"
+        update-types: [version-update:semver-major]
+    groups:
+      npm: { update-types: [minor, patch] }
+      npm-security: { applies-to: security-updates, patterns: ["*"] }
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }
+    open-pull-requests-limit: 1
+    groups:
+      actions: { patterns: ["*"] }
