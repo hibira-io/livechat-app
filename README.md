@@ -73,6 +73,10 @@ Push a tag: `v1.2.3` builds version `1.2.3`, build number `1002003`. Each tag ca
 - **Android:** builds and signs the `.aab` and keeps it as the run's artifact. With `PLAY_SERVICE_ACCOUNT_JSON`
   it also uploads to internal testing. An individual Play account needs a closed test with 12 testers for
   14 days before production.
+- **Android APK:** the same job builds a signed `hibira-chat.apk` and attaches it to the tag's GitHub release (with
+  `hibira-chat-1.2.3.apk` and a `.sha256` file), for phones without Play. Its stable download link is
+  `https://github.com/hibira-io/livechat-app/releases/latest/download/hibira-chat.apk`. Every release is signed with the same
+  upload key, so a newer APK installs over the older one.
 
 App Store screenshots live in `store/ios/screenshots/<locale>/` (7 languages, real inbox shots; how to retake them is in
 `store/capture/README.md`). Actions → **app-store-screenshots** → Run workflow uploads them to the version being prepared.
@@ -110,4 +114,4 @@ Hibira Live Chat 的商户客服 App，iPhone 和 Android 都用 Capacitor 打�
 5. 设置 GitHub Secrets。`APPLE_TEAM_ID` 已是 org 变量，ASC 金钥与 Gaya 共用。
 6. 在 Live Chat 后台填 Android 签名指纹。
 
-发版：推送 tag `v1.2.3` 就会自动出两个包，iPhone 送到 TestFlight，Android 产出 .aab（可选自动上传内部测试）。
+发版：推送 tag `v1.2.3` 就会自动出两个包，iPhone 送到 TestFlight，Android 产出 .aab（可选自动上传内部测试）；Android 同时把签名的 `hibira-chat.apk` 附到该 tag 的 GitHub Release，稳定下载链接 releases/latest/download/hibira-chat.apk 指向最新一版。

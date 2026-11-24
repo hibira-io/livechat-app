@@ -7,6 +7,7 @@
 #   Android  ANDROID_UPLOAD_KEYSTORE (base64 of the .jks),
 #            ANDROID_UPLOAD_PASSWORD, GOOGLE_SERVICES_JSON (Firebase),
 #            PLAY_SERVICE_ACCOUNT_JSON (optional: upload to internal testing)
+# The Android job also attaches a signed APK to the tag's GitHub release.
 name: release
 on:
   push:
@@ -92,6 +93,9 @@ jobs:
 
   android:
     runs-on: ubuntu-latest
+    # Attaches the APK to the tag's GitHub release.
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Version from the tag
@@ -135,6 +139,40 @@ jobs:
             -Pandroid.injected.signing.store.password="$PASS" \
             -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
             -Pandroid.injected.signing.key.password="$PASS"
+
+      # The APK people download from the website (not every phone has Play):
+      # the release's hibira-chat.apk is what
+      # github.com/hibira-io/livechat-app/releases/latest/download/hibira-chat.apk serves.
+      # Same upload key on every release, so a newer APK installs over the
+      # older one and keeps the sign-in.
+      - name: Build the APK and attach it to the release
+        env:
+          PASS: ${{ secrets.ANDROID_UPLOAD_PASSWORD }}
+          CODE: ${{ steps.version.outputs.code }}
+          NAME: ${{ steps.version.outputs.name }}
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          (cd android && ./gradlew --no-daemon assembleRelease \
+            -PversionCode="$CODE" -PversionName="$NAME" \
+            -Pandroid.injected.signing.store.file="$RUNNER_TEMP/upload.jks" \
+            -Pandroid.injected.signing.store.password="$PASS" \
+            -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$PASS")
+          out="$RUNNER_TEMP/apk" && mkdir -p "$out"
+          cp android/app/build/outputs/apk/release/app-release.apk "$out/hibira-chat.apk"
+          cp "$out/hibira-chat.apk" "$out/hibira-chat-$NAME.apk"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$out/hibira-chat.apk" | tee "$out/cert.txt"
+          cert=$(sed -n 's/.*certificate SHA-256 digest: //p' "$out/cert.txt" | head -1 | tr a-f A-F | sed 's/../&:/g; s/:$//')
+          (cd "$out" && sha256sum hibira-chat.apk hibira-chat-$NAME.apk > hibira-chat.apk.sha256)
+          {
+            echo "### Hibira Chat for Android $NAME (APK)"
+            echo "Signing certificate SHA-256: \`$cert\`"
+            echo '```'; cat "$out/hibira-chat.apk.sha256"; echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "$TAG" --notes "" --verify-tag
+          gh release upload "$TAG" --clobber "$out/hibira-chat.apk" "$out/hibira-chat-$NAME.apk" "$out/hibira-chat.apk.sha256"
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
