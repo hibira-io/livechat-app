@@ -28,15 +28,21 @@ import java.util.UUID;
  * token }); the phone registers with FCM through Hibira Push as that agent.
  * Tapping a notice opens its conversation.
  *
- * <p>Links: sign-in emails, single sign-on and /inbox links open the app as
- * App Links (chat.hibira.io/.well-known/assetlinks.json); this loads them in
- * the web view, which keeps the session cookie.
+ * <p>Links: sign-in emails and inbox links on hibira.io, and single sign-on
+ * on chat.hibira.io, open the app as App Links (each host's
+ * /.well-known/assetlinks.json); this loads them in the web view, which
+ * keeps the session cookie. The inbox moved from chat.hibira.io to
+ * hibira.io/portal/live-chat, so older sign-in and inbox links open there.
  */
 @CapacitorPlugin(
     name = "HibiraChatPush",
     permissions = {@Permission(alias = "notifications", strings = {Manifest.permission.POST_NOTIFICATIONS})})
 public class HibiraChatPushPlugin extends Plugin {
+    /** Live Chat's own host: single sign-on and the providers' sign-in. */
     static final String HOST = "chat.hibira.io";
+    /** Where the inbox is: hibira.io's Live Chat pages. */
+    static final String PAGES_HOST = "hibira.io";
+    static final String PAGES_PREFIX = "/portal/live-chat";
     private static final String PREFS = "hibira-chat-push";
     private static final String USER = "user";
 
@@ -52,7 +58,7 @@ public class HibiraChatPushPlugin extends Plugin {
         openFrom(intent);
     }
 
-    /** Loads a chat.hibira.io link (an App Link, or a tapped notice's url). */
+    /** Loads a Live Chat link (an App Link, or a tapped notice's url). */
     private void openFrom(Intent intent) {
         if (intent == null) {
             return;
@@ -62,13 +68,36 @@ public class HibiraChatPushPlugin extends Plugin {
         if (extra != null) {
             uri = Uri.parse(extra);
         }
-        if (uri == null || !"https".equals(uri.getScheme()) || !HOST.equals(uri.getHost())) {
+        final Uri page = page(uri);
+        if (page == null) {
             return;
         }
-        final String url = uri.toString();
+        final String url = page.toString();
         intent.setData(null);
         intent.removeExtra("url");
         getBridge().executeOnMainThread(() -> getBridge().getWebView().loadUrl(url));
+    }
+
+    /**
+     * The address a link opens in the web view: hibira.io's Live Chat pages,
+     * chat.hibira.io's sign-in and inbox links moved there, and anything else
+     * on chat.hibira.io as it is. null for every other host.
+     */
+    static Uri page(Uri uri) {
+        if (uri == null || !"https".equals(uri.getScheme())) {
+            return null;
+        }
+        String path = uri.getPath() == null ? "" : uri.getPath();
+        if (PAGES_HOST.equals(uri.getHost())) {
+            return path.startsWith(PAGES_PREFIX + "/") ? uri : null;
+        }
+        if (!HOST.equals(uri.getHost())) {
+            return null;
+        }
+        if (!path.equals("/login/verify") && !path.equals("/inbox") && !path.startsWith("/inbox/")) {
+            return uri;
+        }
+        return uri.buildUpon().authority(PAGES_HOST).encodedPath(PAGES_PREFIX + uri.getEncodedPath()).build();
     }
 
     @PluginMethod

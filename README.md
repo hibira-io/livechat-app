@@ -1,25 +1,25 @@
 # Hibira Chat (agent app)
 
 Hibira Live Chat's app for the agents who answer chats: iPhone and Android. It opens
-[chat.hibira.io/inbox](https://chat.hibira.io/inbox) in a native shell ([Capacitor](https://capacitorjs.com) 8).
+[hibira.io/portal/live-chat/inbox](https://hibira.io/portal/live-chat/inbox) in a native shell ([Capacitor](https://capacitorjs.com) 8).
 The site does the work. The app adds what a phone needs: notifications, and sign-in links that open in the app.
 
 | | |
 | --- | --- |
 | App ID | `io.hibira.chat` (iOS bundle ID and Android package) |
-| Opens | `https://chat.hibira.io/inbox`, user agent ends in `HibiraChatApp/ios` or `HibiraChatApp/android` |
-| Sign-in | The emailed link (`/login/verify#token=…`) or the company's single sign-on (`/sso/jwt?…`), both opened in the app as Universal Links / App Links so the session cookie lands in the app's web view. Or Apple, Google, Microsoft or GitHub (when turned on in the Live Chat console, Apple first per App Store guideline 4.8): the provider's page opens in the system browser (`HibiraChatAuth`, below), because Google refuses web views. |
+| Opens | `https://hibira.io/portal/live-chat/inbox` (until v0.2.0, `https://chat.hibira.io/inbox`), user agent ends in `HibiraChatApp/ios` or `HibiraChatApp/android` |
+| Sign-in | The emailed link (`hibira.io/portal/live-chat/login/verify#token=…`) or the company's single sign-on (`chat.hibira.io/sso/jwt?…`), both opened in the app as Universal Links / App Links so the session cookie lands in the app's web view. Older links on chat.hibira.io (`/login/verify`, `/inbox…`) open the same page on hibira.io. Or Apple, Google, Microsoft or GitHub (when turned on in the Live Chat console, Apple first per App Store guideline 4.8): the provider's page opens in the system browser (`HibiraChatAuth`, below), because Google refuses web views. |
 | Notifications | [Hibira Push](https://hibira.io): [hibira-push-ios](https://github.com/hibira-io/hibira-push-ios) (APNs) and [hibira-push-android](https://github.com/hibira-io/hibira-push-android) (FCM). New chats, chats assigned to you, and visitor replies to your chats. A tap opens the conversation. |
 | Sold in the app | Nothing. Plans are bought on the website; the inbox hides billing links in the app. |
-| Server side | pusher-server `internal/livechat/mobile.go`: `/.well-known/apple-app-site-association`, `/.well-known/assetlinks.json`, `POST /api/v1/push/token`, `POST /api/v1/push/off` |
+| Server side | pusher-server `internal/billing/mobileapp.go` (hibira.io's `/.well-known/apple-app-site-association` and `assetlinks.json`, for `/portal/live-chat/login/verify` and `/portal/live-chat/inbox*`) and `internal/livechat/mobile.go` (chat.hibira.io's, for `/sso/jwt` and older links; `POST /api/live-chat/v1/push/token`, `POST /api/live-chat/v1/push/off`) |
 
 ## How it fits together
 
 ```
-inbox page (chat.hibira.io)                         this app
-  signed in → POST /api/v1/push/token ──────────▶  HibiraChatPush.register({instance_id, endpoint, user_id, token})
+inbox page (hibira.io/portal/live-chat)              this app
+  signed in → POST …/push/token ────────────────▶  HibiraChatPush.register({instance_id, endpoint, user_id, token})
                                                      → Hibira Push SDK registers the phone as that agent
-  sign out → HibiraChatPush.signOut() + POST /api/v1/push/off
+  sign out → HibiraChatPush.signOut() + POST …/push/off
 pusher-server: new chat / assigned / reply ──────▶  notice with data.url = /inbox/<id>?workspace=<ws>  → tap opens it
 email or SSO link on the phone ──────────────────▶  app opens, web view loads the link
 ```
@@ -27,7 +27,7 @@ email or SSO link on the phone ────────────────�
 Provider sign-in: the sign-in page calls `HibiraChatAuth.open({url})` with
 `https://chat.hibira.io/auth/<provider>?app=ios|android&app_challenge=<S256 of a secret>`. iOS opens it in an
 `ASWebAuthenticationSession`, Android in the browser. The server ends on `io.hibira.chat://auth#token=…` (or
-`#error=…`); the plugin returns that URL and the page posts the token with its secret to `/api/v1/login/verify`.
+`#error=…`); the plugin returns that URL and the page opens its own `/login/verify` with the token and its secret, so the session lands on hibira.io.
 A token without the secret does nothing, so another app that claims the scheme gains nothing.
 
 `plugins/hibira-chat-push` is the only native code: `ios/Sources/…/HibiraChatPushPlugin.swift` and
@@ -55,9 +55,10 @@ in a browser it is absent, so the page's calls do nothing.
      To make the upload key:
      `keytool -genkeypair -keystore upload.jks -alias upload -keyalg RSA -keysize 4096 -validity 10000 -dname "CN=Hibira Chat, O=Hibira, C=TW"`,
      then `base64 -i upload.jks | gh secret set ANDROID_UPLOAD_KEYSTORE -R hibira-io/livechat-app`.
-6. **Live Chat console → Mobile app** (chat.hibira.io/console). Add the SHA-256 of Play's app signing key
-   (Play Console → Test and release → App integrity) and of the upload key (shown in each release run's
-   summary). Android only opens links in the app once these match. The iOS app ID defaults to
+6. **Android App Links.** Add the SHA-256 of Play's app signing key (Play Console → Test and release → App
+   integrity) and of the upload key (shown in each release run's summary) to pusher-server's
+   `livechat_app_android_sha256` (`LIVECHAT_APP_ANDROID_SHA256`); hibira.io and chat.hibira.io both serve it.
+   Android only opens links in the app once these match. The iOS app ID defaults to
    `6XM26CXAA2.io.hibira.chat`.
 
 ## Releasing
@@ -100,7 +101,7 @@ Icons and splash screens are drawn from the Hibira ripple mark on brand red (`ww
 
 ## 中文摘要
 
-Hibira Live Chat 的商户客服 App，iPhone 和 Android 都用 Capacitor 打开 chat.hibira.io/inbox。
+Hibira Live Chat 的商户客服 App，iPhone 和 Android 都用 Capacitor 打开 hibira.io/portal/live-chat/inbox（v0.2.0 之前是 chat.hibira.io/inbox；旧的登录和收件箱链接会自动改开 hibira.io 上的同一页，企业 SSO 和第三方登录仍经过 chat.hibira.io）。
 
 - 登录：邮件登录链接和客户的 SSO 链接会直接在 App 里打开，不需要 Sign in with Apple。
 - 推送：通过我们自己的 Hibira Push，包括新对话、分配给你的对话和访客回复。点开通知直接进入该对话。

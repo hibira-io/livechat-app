@@ -6,6 +6,8 @@
 	<string>development</string>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
+		<string>applinks:hibira.io</string>
+		<string>webcredentials:hibira.io</string>
 		<string>applinks:chat.hibira.io</string>
 		<string>webcredentials:chat.hibira.io</string>
 	</array>
