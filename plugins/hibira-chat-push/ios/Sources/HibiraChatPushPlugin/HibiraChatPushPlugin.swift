@@ -11,10 +11,12 @@ import UserNotifications
 /// with APNs through Hibira Push as that agent. Tapping a notice opens its
 /// conversation.
 ///
-/// Links: sign-in emails (/login/verify#token=…), single sign-on
-/// (/sso/jwt?…) and /inbox links open the app as Universal Links
-/// (chat.hibira.io/.well-known/apple-app-site-association); this loads
-/// them in the web view, which keeps the session cookie.
+/// Links: sign-in emails (/portal/live-chat/login/verify#token=…) and
+/// inbox links on hibira.io, and single sign-on (/sso/jwt?…) on
+/// chat.hibira.io, open the app as Universal Links (each host's
+/// apple-app-site-association); this loads them in the web view, which
+/// keeps the session cookie. The inbox moved from chat.hibira.io to
+/// hibira.io/portal/live-chat, so older sign-in and inbox links open there.
 @objc(HibiraChatPushPlugin)
 public class HibiraChatPushPlugin: CAPPlugin, CAPBridgedPlugin, NotificationHandlerProtocol {
     public let identifier = "HibiraChatPushPlugin"
@@ -23,7 +25,11 @@ public class HibiraChatPushPlugin: CAPPlugin, CAPBridgedPlugin, NotificationHand
         CAPPluginMethod(name: "register", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "signOut", returnType: CAPPluginReturnPromise)
     ]
+    /// Live Chat's own host: single sign-on and the providers' sign-in.
     static let host = "chat.hibira.io"
+    /// Where the inbox is: hibira.io's Live Chat pages.
+    static let pagesHost = "hibira.io"
+    static let pagesPrefix = "/portal/live-chat"
     private let tokens = HandedToken()
     private let userKey = "io.hibira.chat.push-user"
 
@@ -91,8 +97,25 @@ public class HibiraChatPushPlugin: CAPPlugin, CAPBridgedPlugin, NotificationHand
     }
 
     private func open(_ url: URL) {
-        guard url.scheme == "https", url.host == Self.host else { return }
-        DispatchQueue.main.async { _ = self.bridge?.webView?.load(URLRequest(url: url)) }
+        guard let page = Self.page(url) else { return }
+        DispatchQueue.main.async { _ = self.bridge?.webView?.load(URLRequest(url: page)) }
+    }
+
+    /// The address a link opens in the web view: hibira.io's Live Chat
+    /// pages, chat.hibira.io's sign-in and inbox links moved there, and
+    /// anything else on chat.hibira.io as it is. nil for every other host.
+    static func page(_ url: URL) -> URL? {
+        guard url.scheme == "https" else { return nil }
+        let path = url.path
+        if url.host == pagesHost {
+            return path.hasPrefix(pagesPrefix + "/") ? url : nil
+        }
+        guard url.host == host else { return nil }
+        guard path == "/login/verify" || path == "/inbox" || path.hasPrefix("/inbox/"),
+              var moved = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return url }
+        moved.host = pagesHost
+        moved.percentEncodedPath = pagesPrefix + moved.percentEncodedPath
+        return moved.url
     }
 
     // A notice that arrives while the app is open still shows as a banner.

@@ -22,7 +22,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Sign-in links and the inbox open here (chat.hibira.io/.well-known/assetlinks.json). -->
+            <!-- Sign-in links and the inbox open here (hibira.io/.well-known/assetlinks.json).
+                 Billing and the rest of the merchant pages stay in the browser. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="hibira.io" android:path="/portal/live-chat/login/verify" />
+                <data android:scheme="https" android:host="hibira.io" android:pathPrefix="/portal/live-chat/inbox" />
+            </intent-filter>
+
+            <!-- Links sent before the move to hibira.io, and single sign-on, which stays on
+                 chat.hibira.io (chat.hibira.io/.well-known/assetlinks.json). The plugin opens
+                 the old sign-in and inbox links on hibira.io. -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />

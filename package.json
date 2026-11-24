@@ -1,7 +1,7 @@
 {
   "name": "hibira-livechat-app",
   "private": true,
-  "description": "Hibira Live Chat's agent app for iPhone and Android (Capacitor). It opens https://chat.hibira.io/inbox.",
+  "description": "Hibira Live Chat's agent app for iPhone and Android (Capacitor). It opens https://hibira.io/portal/live-chat/inbox.",
   "type": "module",
   "scripts": {
     "sync": "cap sync",

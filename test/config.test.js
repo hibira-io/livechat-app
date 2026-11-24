@@ -1,6 +1,8 @@
 // The app's IDs, host and link paths live in several native files; these
-// checks keep them in step with each other and with chat.hibira.io
-// (pusher-server internal/livechat/mobile.go serves the association files).
+// checks keep them in step with each other and with the association files
+// pusher-server serves: hibira.io's (internal/billing/mobileapp.go) for the
+// inbox and sign-in links, chat.hibira.io's (internal/livechat/mobile.go)
+// for single sign-on and links sent before the inbox moved.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -8,6 +10,8 @@ import { readFileSync } from "node:fs";
 const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), "utf8");
 const config = JSON.parse(read("capacitor.config.json"));
 const HOST = "chat.hibira.io";
+const PAGES = "hibira.io";
+const PREFIX = "/portal/live-chat";
 const APP_ID = "io.hibira.chat";
 
 test("one app ID everywhere", () => {
@@ -16,34 +20,58 @@ test("one app ID everywhere", () => {
   assert.match(read("android/app/build.gradle"), /applicationId "io\.hibira\.chat"/);
 });
 
-test("the web view stays on the Live Chat host", () => {
+test("the web view opens hibira.io's inbox", () => {
   const url = new URL(config.server.url);
-  assert.equal(url.host, HOST);
-  assert.equal(url.pathname, "/inbox");
-  assert.deepEqual(config.server.allowNavigation, [HOST]);
+  assert.equal(url.host, PAGES);
+  assert.equal(url.pathname, `${PREFIX}/inbox`);
+  // chat.hibira.io stays for single sign-on, which finishes there.
+  assert.deepEqual(config.server.allowNavigation, [PAGES, HOST]);
+  assert.ok(read("www/offline.html").includes(`https://${PAGES}${PREFIX}/inbox`));
   assert.equal(config.ios.appendUserAgent, "HibiraChatApp/ios");
   assert.equal(config.android.appendUserAgent, "HibiraChatApp/android");
 });
 
 test("sign-in and inbox links open the app", () => {
   const ent = read("ios/App/App/App.entitlements");
-  assert.match(ent, new RegExp(`applinks:${HOST.replace(".", "\\.")}`));
+  for (const host of [PAGES, HOST]) {
+    assert.ok(ent.includes(`<string>applinks:${host}</string>`), host);
+    assert.ok(ent.includes(`<string>webcredentials:${host}</string>`), host);
+  }
   assert.match(ent, /aps-environment/);
   const manifest = read("android/app/src/main/AndroidManifest.xml");
   assert.match(manifest, /android:autoVerify="true"/);
-  for (const path of ['android:path="/login/verify"', 'android:path="/sso/jwt"', 'android:pathPrefix="/inbox"']) {
-    assert.ok(manifest.includes(path), path);
+  for (const data of [
+    `android:host="${PAGES}" android:path="${PREFIX}/login/verify"`,
+    `android:host="${PAGES}" android:pathPrefix="${PREFIX}/inbox"`,
+    `android:host="${HOST}" android:path="/login/verify"`,
+    `android:host="${HOST}" android:path="/sso/jwt"`,
+    `android:host="${HOST}" android:pathPrefix="/inbox"`,
+  ]) {
+    assert.ok(manifest.includes(data), data);
   }
   // Billing and the console stay in the browser: nothing is sold in the app.
-  assert.ok(!/\/portal|\/console|\/billing/.test(manifest));
+  const paths = [...manifest.matchAll(/android:path(?:Prefix)?="([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(paths.every((p) => !/\/console|\/billing/.test(p)), paths.join(" "));
+  assert.ok(paths.filter((p) => p.startsWith("/portal")).every((p) => p.startsWith(`${PREFIX}/login/verify`) || p.startsWith(`${PREFIX}/inbox`)));
 });
 
-test("the plugins only open links on the Live Chat host", () => {
+test("the plugins only open Live Chat's links, older inbox links on hibira.io", () => {
   const swift = read("plugins/hibira-chat-push/ios/Sources/HibiraChatPushPlugin/HibiraChatPushPlugin.swift");
   const java = read("plugins/hibira-chat-push/android/src/main/java/io/hibira/chat/push/HibiraChatPushPlugin.java");
   assert.match(swift, /static let host = "chat\.hibira\.io"/);
+  assert.match(swift, /static let pagesHost = "hibira\.io"/);
+  assert.match(swift, /static let pagesPrefix = "\/portal\/live-chat"/);
   assert.match(java, /HOST = "chat\.hibira\.io"/);
-  assert.match(swift, /url\.scheme == "https", url\.host == Self\.host/);
+  assert.match(java, /PAGES_HOST = "hibira\.io"/);
+  assert.match(java, /PAGES_PREFIX = "\/portal\/live-chat"/);
+  // Both open only https links, and only through page().
+  assert.match(swift, /guard url\.scheme == "https" else \{ return nil \}/);
+  assert.match(swift, /guard let page = Self\.page\(url\)/);
+  assert.match(java, /!"https"\.equals\(uri\.getScheme\(\)\)/);
+  assert.match(java, /final Uri page = page\(uri\);/);
+  for (const src of [swift, java]) {
+    assert.ok(src.includes('"/login/verify"') && src.includes('"/inbox"') && src.includes('"/inbox/"'));
+  }
 });
 
 test("provider sign-ins come back on the app's scheme", () => {

@@ -3,8 +3,8 @@
   "appName": "Hibira Chat",
   "webDir": "www",
   "server": {
-    "url": "https://chat.hibira.io/inbox",
-    "allowNavigation": ["chat.hibira.io"],
+    "url": "https://hibira.io/portal/live-chat/inbox",
+    "allowNavigation": ["hibira.io", "chat.hibira.io"],
     "errorPath": "offline.html"
   },
   "ios": {
