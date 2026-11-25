@@ -7,6 +7,8 @@
 # - screenshots: replaces the 6.9" iPhone screenshots with
 #   store/ios/screenshots/<locale>/*, in name order
 # - testflight: an internal TestFlight group with every team user in it
+# - submit: the newest TestFlight build on the version, sent to App Review
+#   (a submission still waiting with an older build is withdrawn first)
 # - inspect: prints the reference app's age rating and review details
 name: app-store-screenshots
 on:
@@ -18,7 +20,7 @@ on:
       step:
         description: What to update
         type: choice
-        options: [all, metadata, screenshots, creatives, build, pricing, testflight, inspect]
+        options: [all, metadata, screenshots, creatives, build, submit, pricing, testflight, inspect]
         default: all
 
 permissions:
@@ -68,6 +70,9 @@ jobs:
       - name: Newest TestFlight build on the version
         if: inputs.step == 'build'
         run: node .github/scripts/asc-build.mjs
+      - name: Newest TestFlight build to App Review
+        if: inputs.step == 'submit'
+        run: node .github/scripts/asc-submit.mjs
       - name: Free price and territories
         if: inputs.step == 'pricing'
         env:
